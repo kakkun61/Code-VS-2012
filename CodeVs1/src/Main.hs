@@ -38,18 +38,14 @@ readParameters =
 readPacks :: Int -> Int -> IO [Pack]
 readPacks 0 _ = return []
 readPacks n t =
-    do
-        p <- readPack t
-        ps <- readPacks (n-1) t
-        return $ p:ps
+    replicateM n $ readPack t
     where
         readPack :: Int -> IO Pack
-        readPack 0 = getLine >> return []
         readPack t =
             do
-                l <- map read . words <$> getLine
-                ls <- readPack (t-1)
-                return $ l:ls
+                ls <- replicateM t $ map read . words <$> getLine
+                getLine
+                return ls
 
 randomOutputs :: Int -> Int -> State StdGen [(Int, Int)]
 randomOutputs w t =
