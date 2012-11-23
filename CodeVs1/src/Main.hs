@@ -17,15 +17,17 @@ type Stage = [[Int]]
 
 main :: IO ()
 main =
-    --mainRelease
-    mainEmu
+    mainRelease
+    --mainEmu
 
 mainRelease :: IO ()
 mainRelease =
     do
         p <- readParameters
         packs <- readPacks (n p) (t p)
-        mapM_ putStrLn $ map outputString $ fst $ runState (randomOutputs (w p) (t p)) (mkStdGen 33)
+        print p
+        mapM_ putStrLn $ map show $ head packs
+        --mapM_ putStrLn $ map outputString $ fst $ runState (randomOutputs (w p) (t p)) (mkStdGen 33)
 
 readParameters :: IO Parameters
 readParameters =
