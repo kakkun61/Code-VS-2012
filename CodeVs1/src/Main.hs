@@ -3,6 +3,15 @@ import System.Random
 import Control.Monad.State
 import Text.Printf (printf)
 
+data Parameters = Parameters {
+                      w :: Int,
+                      h :: Int,
+                      t :: Int,
+                      s :: Int,
+                      n :: Int
+                  }
+                  deriving Show
+
 type Pack = [[Int]]
 type Stage = [[Int]]
 
@@ -14,10 +23,15 @@ main =
 mainRelease :: IO ()
 mainRelease =
     do
-        [w, h, t, s, n] <- map read . words <$> getLine
-        packs <- readPacks n t
-        mapM_ putStrLn $ map outputString $ fst $ runState (randomOutputs w t) (mkStdGen 33)
+        p <- readParameters
+        packs <- readPacks (n p) (t p)
+        mapM_ putStrLn $ map outputString $ fst $ runState (randomOutputs (w p) (t p)) (mkStdGen 33)
 
+readParameters :: IO Parameters
+readParameters =
+    do
+        [w, h, t, s, n] <- map read . words <$> getLine
+        return $ Parameters w h t s n
 
 readPacks :: Int -> Int -> IO [Pack]
 readPacks 0 _ = return []
@@ -70,9 +84,10 @@ emptyStage w h = replicate h $ replicate w 0
 
 showStage :: Stage -> String
 showStage = unlines . map (unwords . (map (printf "%2d")))
-
+{-
 putPack :: Int -> Pack -> Stage -> Maybe Stage
 putPack x pack stage =
     let
         overL = not $ null $ filter (0<) $ concat $ map (take (-x)) pack
         overR = not $ null $ filter (0<) $ concat $ map (drop ((length pack)-(x+(length pack)-(length $ stage !! 0)))) pack
+-}
