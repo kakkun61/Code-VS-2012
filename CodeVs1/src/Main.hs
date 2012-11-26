@@ -14,6 +14,8 @@ data Parameters = Parameters {
 
 type Pack = [[Int]]
 type Stage = [[Int]]
+type Point = (Int, Int)
+type Block = Int
 
 main :: IO ()
 main =
@@ -80,9 +82,16 @@ emptyStage w h = replicate h $ replicate w 0
 showStage :: Stage -> String
 showStage = unlines . map (unwords . (map (printf "%2d")))
 {-
-putPack :: Int -> Pack -> Stage -> Maybe Stage
-putPack x pack stage =
+putPack :: Parameters -> Int -> Pack -> Stage -> Maybe Stage
+putPack p x pack stage =
     let
         overL = not $ null $ filter (0<) $ concat $ map (take (-x)) pack
-        overR = not $ null $ filter (0<) $ concat $ map (drop ((length pack)-(x+(length pack)-(length $ stage !! 0)))) pack
+        overR = not $ null $ filter (0<) $ concat $ map (drop ((t p)-(x+(t p)-(w p)))) pack
+    in
+        if overL && overR
+            then Nothing
+            else dropBlock
+
+dropBlock :: Point -> Block -> Stage
+dropBlock = undefined
 -}
