@@ -24,7 +24,7 @@ mainRelease :: IO ()
 mainRelease =
     do
         p <- readParameters
-        packs <- readPacks (n p) (t p)
+        packs <- readPacks p
         --print p
         --mapM_ putStrLn $ map show $ head packs
         mapM_ putStrLn $ map outputString $ fst $ runState (randomOutputs p) (mkStdGen 33)
@@ -35,10 +35,9 @@ readParameters =
         [w, h, t, s, n] <- map read . words <$> getLine
         return $ Parameters w h t s n
 
-readPacks :: Int -> Int -> IO [Pack]
-readPacks 0 _ = return []
-readPacks n t =
-    replicateM n $ readPack t
+readPacks :: Parameters -> IO [Pack]
+readPacks p =
+    replicateM (n p) $ readPack (t p)
     where
         readPack :: Int -> IO Pack
         readPack t =
