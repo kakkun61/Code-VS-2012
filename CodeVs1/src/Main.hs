@@ -27,7 +27,7 @@ mainRelease =
         packs <- readPacks (n p) (t p)
         --print p
         --mapM_ putStrLn $ map show $ head packs
-        mapM_ putStrLn $ map outputString $ fst $ runState (randomOutputs (w p) (t p)) (mkStdGen 33)
+        mapM_ putStrLn $ map outputString $ fst $ runState (randomOutputs p) (mkStdGen 33)
 
 readParameters :: IO Parameters
 readParameters =
@@ -47,13 +47,10 @@ readPacks n t =
                 getLine
                 return ls
 
--- TODO rewrite with repeatM_
-randomOutputs :: Int -> Int -> State StdGen [(Int, Int)]
-randomOutputs w t =
+randomOutputs :: Parameters -> State StdGen [(Int, Int)]
+randomOutputs p =
     do
-        o <- randomOutput w t
-        os <- randomOutputs w t
-        return $ o:os
+        replicateM (n p) $ randomOutput (w p) (t p)
     where
         randomOutput :: Int -> Int -> State StdGen (Int, Int)
         randomOutput w t =
