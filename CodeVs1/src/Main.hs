@@ -1,7 +1,8 @@
-import Control.Applicative ((<$>))
+import Control.Applicative ((<$>), (<*>))
 import System.Random
 import Control.Monad.State
 import Text.Printf (printf)
+import qualified Data.Vector as V
 
 data Parameters = Parameters {
                       w :: Int,
@@ -12,8 +13,8 @@ data Parameters = Parameters {
                   }
                   deriving Show
 
-type Pack = [[Int]]
-type Stage = [[Int]]
+type Pack = V.Vector (V.Vector Int)
+type Stage = V.Vector (V.Vector Int)
 type Point = (Int, Int)
 type Block = Int
 
@@ -44,7 +45,7 @@ readPacks p =
         readPack :: Int -> IO Pack
         readPack t =
             do
-                ls <- replicateM t $ map read . words <$> getLine
+                ls <- V.fromList <$> replicateM t $ V.fromList $ map read . words <*> getLine
                 getLine
                 return ls
 

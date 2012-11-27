@@ -4,19 +4,50 @@ cabal-version: >=1.2
 build-type: Simple
 license: AllRightsReserved
 license-file: ""
-description:  
+copyright:
+maintainer:
+build-depends: base -any, mtl -any, random -any, vector -any
+stability:
+homepage:
+package-url:
+bug-reports:
+synopsis:
+description: .
+             .
+             .
+category:
+author:
+tested-with:
+data-files:
 data-dir: ""
+extra-source-files:
+extra-tmp-files:
  
-executable CodeVs1
-    build-depends: base -any, mtl -any, random -any
-    main-is: Main.hs
-    buildable: True
-    hs-source-dirs: src
- 
-test-suite test-CodeVs1
-    build-depends: base -any, mtl -any, random -any
-    type: exitcode-stdio-1.0
-    main-is: Main.hs
-    buildable: True
-    cpp-options: -DMAIN_FUNCTION=testMain
-    hs-source-dirs: src
+executable: CodeVs1
+main-is: Main.hs
+buildable: True
+build-tools:
+cpp-options:
+cc-options:
+ld-options:
+pkgconfig-depends:
+frameworks:
+c-sources:
+default-language:
+other-languages:
+default-extensions:
+other-extensions:
+extensions:
+extra-libraries:
+extra-lib-dirs:
+includes:
+install-includes:
+include-dirs:
+hs-source-dirs: src
+other-modules:
+ghc-prof-options:
+ghc-shared-options:
+ghc-options:
+hugs-options:
+nhc98-options:
+jhc-options:
