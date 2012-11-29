@@ -20,8 +20,8 @@ type Block = Int
 
 main :: IO ()
 main =
-    mainRelease
-    --mainEmu
+    --mainRelease
+    mainEmu
 
 mainRelease :: IO ()
 mainRelease =
@@ -45,7 +45,7 @@ readPacks p =
         readPack :: Int -> IO Pack
         readPack t =
             do
-                ls <- V.fromList <$> replicateM t $ V.fromList $ map read . words <*> getLine
+                ls <- V.replicateM t $ V.fromList . (map read . words) <$> getLine
                 getLine
                 return ls
 
@@ -78,10 +78,10 @@ mainEmu =
         putStrLn $ showStage $ emptyStage w h
 
 emptyStage :: Int -> Int -> Stage
-emptyStage w h = replicate h $ replicate w 0
+emptyStage w h = V.replicate h $ V.replicate w 0
 
 showStage :: Stage -> String
-showStage = unlines . map (unwords . (map (printf "%2d")))
+showStage = unlines . map (unwords . (map (printf "%2d")) . V.toList) . V.toList
 {-
 putPack :: Parameters -> Int -> Pack -> Stage -> Maybe Stage
 putPack p x pack stage =
