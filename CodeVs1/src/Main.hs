@@ -3,6 +3,7 @@ import System.Random
 import Control.Monad.State
 import Text.Printf (printf)
 import qualified Data.Vector as V
+import Data.Vector ((!), (//))
 
 data Parameters = Parameters {
                       w :: Int,
@@ -75,7 +76,7 @@ mainEmu =
             t = 4
             s = 10
             n = 1000
-        putStrLn $ showStage $ emptyStage w h
+        putStrLn $ showStage $ putBlock (0, 15) 1 $ putBlock (1, 14) 2 $ putBlock (2, 13) 3 $ putBlock (3, 12) 4 $ emptyStage w h
 
 emptyStage :: Int -> Int -> Stage
 emptyStage w h = V.replicate h $ V.replicate w 0
@@ -96,6 +97,6 @@ putPack p x pack stage =
 dropBlock :: Point -> Block -> Stage
 dropBlock = undefined
 -}
-updateStage :: Stage -> Point -> Block -> Stage
-updateStage s (x, y) b =
-
+putBlock :: Point -> Block -> Stage -> Stage
+putBlock (x, y) b s =
+    s // [(y, (s ! y) // [(x, b)])]
