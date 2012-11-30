@@ -65,9 +65,8 @@ randomOutputs p =
 outputString :: (Int, Int) -> String
 outputString (x, r) = (show x) ++ " " ++ (show r)
 
-{-
-    エミュレーションテスト
--}
+
+-- | エミュレーションテスト
 mainEmu :: IO ()
 mainEmu =
     do
@@ -76,7 +75,12 @@ mainEmu =
             t = 4
             s = 10
             n = 1000
-        putStrLn $ showStage $ putBlock (0, 15) 1 $ putBlock (1, 14) 2 $ putBlock (2, 13) 3 $ putBlock (3, 12) 4 $ emptyStage w h
+            st = putBlock (0, 15) 1 $ putBlock (1, 14) 2 $ putBlock (2, 13) 3 $ putBlock (3, 12) 4 $ emptyStage w h
+        putStrLn $ showStage $ st
+        putStrLn $ "emptyBottom 0: " ++ (show $ emptyBottom 0 st)
+        putStrLn $ "emptyBottom 1: " ++ (show $ emptyBottom 1 st)
+        putStrLn $ "emptyBottom 2: " ++ (show $ emptyBottom 2 st)
+        putStrLn $ "emptyBottom 4: " ++ (show $ emptyBottom 4 st)
 
 emptyStage :: Int -> Int -> Stage
 emptyStage w h = V.replicate h $ V.replicate w 0
@@ -99,3 +103,7 @@ dropBlock = undefined
 -}
 putBlock :: Point -> Block -> Stage -> Stage
 putBlock (x, y) b s = s // [(y, (s ! y) // [(x, b)])]
+
+-- | ブロックを落とすと止まる場所（y座標）
+emptyBottom :: Int -> Stage -> Int
+emptyBottom x s = (V.length $ V.takeWhile (== 0) $ V.map (!x) s) - 1
