@@ -96,3 +96,6 @@ putPack p x pack stage =
 dropBlock :: Point -> Block -> Stage
 dropBlock = undefined
 -}
+updateStage :: Stage -> Point -> Block -> Stage
+updateStage s (x, y) b =
+
