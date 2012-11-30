@@ -98,5 +98,4 @@ dropBlock :: Point -> Block -> Stage
 dropBlock = undefined
 -}
 putBlock :: Point -> Block -> Stage -> Stage
-putBlock (x, y) b s =
-    s // [(y, (s ! y) // [(x, b)])]
+putBlock (x, y) b s = s // [(y, (s ! y) // [(x, b)])]
