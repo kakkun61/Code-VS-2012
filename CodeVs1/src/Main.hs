@@ -21,8 +21,8 @@ type Block = Int
 
 main :: IO ()
 main =
-    --mainRelease
-    mainEmu
+    mainRelease
+    --mainEmu
 
 mainRelease :: IO ()
 mainRelease =
@@ -58,7 +58,7 @@ randomOutputs p =
         randomOutput :: Int -> Int -> State StdGen (Int, Int)
         randomOutput w t =
             do
-                x <- state $ randomR (0, w-t-1)
+                x <- state $ randomR (0, w-t)
                 r <- state $ randomR (0, 3)
                 return (x, r)
 
