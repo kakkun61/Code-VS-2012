@@ -104,7 +104,7 @@ dropPack p x pack stage =
     in
         if overL && overR
             then Nothing
-            else Just $ foldl dropPack' stage (trace ("points " ++ (show [(x, y) | x <- [0..(t'-1)], y <- [(t'-1),(t'-2)..0]])) [(x, y) | x <- [0..(t'-1)], y <- [(t'-1),(t'-2)..0]])
+            else Just $ foldl dropPack' stage [(x, y) | x <- [0..(t'-1)], y <- [(t'-1),(t'-2)..0]]
         where
             dropPack' :: Stage -> Point -> Stage
             dropPack' stage bp@(bx, by) = dropBlock p (x+bx) (blockAt bp pack) stage
@@ -113,7 +113,7 @@ dropBlock :: Parameters -> Int -> Block -> Stage -> Stage
 dropBlock p x b stage
     | x < 0      = stage
     | (w p) <= x = stage
-    | otherwise  = putBlock (x, (trace ("emptyBottom " ++ (show x) ++ ", " ++ (show $ emptyBottom x stage)) $ emptyBottom x stage)) b stage
+    | otherwise  = putBlock (x, emptyBottom x stage) b stage
 
 
 putBlock :: Point -> Block -> Stage -> Stage
