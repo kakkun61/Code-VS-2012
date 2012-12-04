@@ -4,6 +4,7 @@ import Control.Monad.State
 import Text.Printf (printf)
 import qualified Data.Vector as V
 import Data.Vector ((!), (//))
+import Debug.Trace
 
 data Parameters = Parameters {
                       w :: Int,
@@ -70,17 +71,23 @@ outputString (x, r) = (show x) ++ " " ++ (show r)
 mainEmu :: IO ()
 mainEmu =
     do
-        let w = 10
-            h = 16
-            t = 4
-            s = 10
-            n = 1000
-            st = putBlock (0, 15) 1 $ putBlock (1, 14) 2 $ putBlock (2, 13) 3 $ putBlock (3, 12) 4 $ emptyStage w h
+        let
+            p = Parameters {
+                    w = 10,
+                    h = 16,
+                    t = 4,
+                    s = 10,
+                    n = 1000
+                }
+            st = putBlock (0, 15) 1 $ putBlock (1, 14) 2 $ putBlock (2, 13) 3 $ putBlock (3, 12) 4 $ emptyStage (w p) (h p)
+            pk = V.fromList $ map V.fromList [[1,0,0,3],
+                                             [0,0,0,0],
+                                             [3,3,0,0],
+                                             [0,0,0,0]]
         putStrLn $ showStage $ st
-        putStrLn $ "emptyBottom 0: " ++ (show $ emptyBottom 0 st)
-        putStrLn $ "emptyBottom 1: " ++ (show $ emptyBottom 1 st)
-        putStrLn $ "emptyBottom 2: " ++ (show $ emptyBottom 2 st)
-        putStrLn $ "emptyBottom 4: " ++ (show $ emptyBottom 4 st)
+        putStrLn $ showStage $  case dropPack p (-1) pk st of
+            Just st' -> st'
+            Nothing  -> V.fromList [V.fromList []]
 
 emptyStage :: Int -> Int -> Stage
 emptyStage w h = V.replicate h $ V.replicate w 0
@@ -97,13 +104,17 @@ dropPack p x pack stage =
     in
         if overL && overR
             then Nothing
-            else Just $ foldl dropPack' stage [(x, y) | x <- [0..(t'-1)], y <- [(t'-1)..0]]
+            else Just $ foldl dropPack' stage (trace ("points " ++ (show [(x, y) | x <- [0..(t'-1)], y <- [(t'-1),(t'-2)..0]])) [(x, y) | x <- [0..(t'-1)], y <- [(t'-1),(t'-2)..0]])
         where
             dropPack' :: Stage -> Point -> Stage
-            dropPack' stage bp@(bx, by) = dropBlock (x+bx) (blockAt bp pack) stage
+            dropPack' stage bp@(bx, by) = dropBlock p (x+bx) (blockAt bp pack) stage
 
-dropBlock :: Int -> Block -> Stage -> Stage
-dropBlock x b stage = putBlock (x, emptyBottom x stage) b stage
+dropBlock :: Parameters -> Int -> Block -> Stage -> Stage
+dropBlock p x b stage
+    | x < 0      = stage
+    | (w p) <= x = stage
+    | otherwise  = putBlock (x, (trace ("emptyBottom " ++ (show x) ++ ", " ++ (show $ emptyBottom x stage)) $ emptyBottom x stage)) b stage
+
 
 putBlock :: Point -> Block -> Stage -> Stage
 putBlock (x, y) b s = s // [(y, (s ! y) // [(x, b)])]
