@@ -23,7 +23,8 @@ type Block = Int
 main :: IO ()
 main =
     --mainRelease
-    mainEmu
+    --mainEmu
+    mainRotate
 
 mainRelease :: IO ()
 mainRelease =
@@ -89,6 +90,20 @@ mainEmu =
             Just st' -> st'
             Nothing  -> V.fromList [V.fromList []]
 
+mainRotate :: IO ()
+mainRotate = do
+    let
+        p = Parameters {
+                w = 10,
+                h = 16,
+                t = 4,
+                s = 10,
+                n = 1000
+        }
+        pack = V.fromList $ map V.fromList [[1..4],[5..8],[9..12],[13..16]]
+    putStrLn $ showStage pack
+    mapM_ (putStrLn . showStage . (rotatePack p) pack) [0..3]
+
 emptyStage :: Int -> Int -> Stage
 emptyStage w h = V.replicate h $ V.replicate w 0
 
@@ -129,8 +144,11 @@ vconcat = V.concat . V.toList
 blockAt :: Point -> Pack -> Block
 blockAt (x, y) p = p ! y ! x
 
-rotatePack :: Int -> Pack -> Pack
-rotatePack 0 pack = pack
-rotatePack 1 pack =
-rotatePack 2 pack =
-rotatePack 3 pack =
+rotatePack :: Parameters -> Pack -> Int -> Pack
+rotatePack p pack 0 = pack
+rotatePack p pack 1 = V.fromList $ map (V.reverse . column pack) [0..(t p)-1]
+rotatePack p pack 2 = V.fromList $ map (V.reverse . (pack!)) [(t p)-1,(t p)-2..0]
+rotatePack p pack 3 = V.fromList $ map (column pack) [(t p)-1,(t p)-2..0]
+
+column :: Pack -> Int -> V.Vector Block
+column pack x = V.map (!x) pack
