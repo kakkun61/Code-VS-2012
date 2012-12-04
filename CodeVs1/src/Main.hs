@@ -21,8 +21,8 @@ type Block = Int
 
 main :: IO ()
 main =
-    mainRelease
-    --mainEmu
+    --mainRelease
+    mainEmu
 
 mainRelease :: IO ()
 mainRelease =
@@ -87,23 +87,33 @@ emptyStage w h = V.replicate h $ V.replicate w 0
 
 showStage :: Stage -> String
 showStage = unlines . map (unwords . (map (printf "%2d")) . V.toList) . V.toList
-{-
-putPack :: Parameters -> Int -> Pack -> Stage -> Maybe Stage
-putPack p x pack stage =
+
+dropPack :: Parameters -> Int -> Pack -> Stage -> Maybe Stage
+dropPack p x pack stage =
     let
-        overL = not $ null $ filter (0<) $ concat $ map (take (-x)) pack
-        overR = not $ null $ filter (0<) $ concat $ map (drop ((t p)-(x+(t p)-(w p)))) pack
+        overL = not $ V.null $ V.filter (0<) $ vconcat $ V.map (V.take (-x)) pack
+        overR = not $ V.null $ V.filter (0<) $ vconcat $ V.map (V.drop ((t p)-(x+(t p)-(w p)))) pack
+        t' = (t p)
     in
         if overL && overR
             then Nothing
-            else dropBlock
+            else Just $ foldl dropPack' stage [(x, y) | x <- [0..(t'-1)], y <- [(t'-1)..0]]
+        where
+            dropPack' :: Stage -> Point -> Stage
+            dropPack' stage bp@(bx, by) = dropBlock (x+bx) (blockAt bp pack) stage
 
-dropBlock :: Point -> Block -> Stage
-dropBlock = undefined
--}
+dropBlock :: Int -> Block -> Stage -> Stage
+dropBlock x b stage = putBlock (x, emptyBottom x stage) b stage
+
 putBlock :: Point -> Block -> Stage -> Stage
 putBlock (x, y) b s = s // [(y, (s ! y) // [(x, b)])]
 
 -- | ブロックを落とすと止まる場所（y座標）
 emptyBottom :: Int -> Stage -> Int
 emptyBottom x s = (V.length $ V.takeWhile (== 0) $ V.map (!x) s) - 1
+
+vconcat :: V.Vector (V.Vector a) -> V.Vector a
+vconcat = V.concat . V.toList
+
+blockAt :: Point -> Pack -> Block
+blockAt (x, y) p = p ! y ! x
