@@ -128,3 +128,9 @@ vconcat = V.concat . V.toList
 
 blockAt :: Point -> Pack -> Block
 blockAt (x, y) p = p ! y ! x
+
+rotatePack :: Int -> Pack -> Pack
+rotatePack 0 pack = pack
+rotatePack 1 pack =
+rotatePack 2 pack =
+rotatePack 3 pack =
