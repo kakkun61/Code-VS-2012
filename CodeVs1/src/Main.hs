@@ -86,7 +86,7 @@ mainEmu =
                                               [0,0,0,0],
                                               [3,3,0,0],
                                               [0,0,0,0]]
-        mapM_ (putStrLn . showStage) $ bfs p pk st
+        mapM_ (putStrLn . showStage) $ bfs p [pk] [st]
 
 mainRotate :: IO ()
 mainRotate = do
@@ -151,12 +151,15 @@ rotatePack p pack 3 = V.fromList $ map (column pack) [(t p)-1,(t p)-2..0]
 column :: Pack -> Int -> V.Vector Block
 column pack x = V.map (!x) pack
 
-bfs :: Parameters -> Pack -> Stage -> [Stage]
-bfs p pack stage = do
+bfs :: Parameters -> [Pack] -> [Stage] -> [Stage]
+bfs p packs stages = do
     let t' = (t p)
         w' = (w p)
+        pk = head packs
+        pks = tail packs
     r <- [0..3]
     x <- [1-t'..w'-1]
-    case dropPack p x (rotatePack p pack r) stage of
+    st <- stages
+    case dropPack p x (rotatePack p pk r) st of
         Just st -> [st]
         Nothing -> []
