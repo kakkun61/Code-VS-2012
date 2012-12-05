@@ -23,8 +23,8 @@ type Block = Int
 main :: IO ()
 main =
     --mainRelease
-    --mainEmu
-    mainRotate
+    mainEmu
+    --mainRotate
 
 mainRelease :: IO ()
 mainRelease =
@@ -80,15 +80,13 @@ mainEmu =
                     s = 10,
                     n = 1000
                 }
-            st = putBlock (0, 15) 1 $ putBlock (1, 14) 2 $ putBlock (2, 13) 3 $ putBlock (3, 12) 4 $ emptyStage (w p) (h p)
+            --st = putBlock (0, 15) 1 $ putBlock (1, 14) 2 $ putBlock (2, 13) 3 $ putBlock (3, 12) 4 $ emptyStage (w p) (h p)
+            st = emptyStage (w p) (h p)
             pk = V.fromList $ map V.fromList [[1,0,0,3],
-                                             [0,0,0,0],
-                                             [3,3,0,0],
-                                             [0,0,0,0]]
-        putStrLn $ showStage $ st
-        putStrLn $ showStage $  case dropPack p (-1) pk st of
-            Just st' -> st'
-            Nothing  -> V.fromList [V.fromList []]
+                                              [0,0,0,0],
+                                              [3,3,0,0],
+                                              [0,0,0,0]]
+        mapM_ (putStrLn . showStage) $ bfs p pk st
 
 mainRotate :: IO ()
 mainRotate = do
@@ -117,7 +115,7 @@ dropPack p x pack stage =
         overR = not $ V.null $ V.filter (0<) $ vconcat $ V.map (V.drop ((t p)-(x+(t p)-(w p)))) pack
         t' = (t p)
     in
-        if overL && overR
+        if overL || overR
             then Nothing
             else Just $ foldl dropPack' stage [(x, y) | x <- [0..(t'-1)], y <- [(t'-1),(t'-2)..0]]
         where
@@ -152,3 +150,13 @@ rotatePack p pack 3 = V.fromList $ map (column pack) [(t p)-1,(t p)-2..0]
 
 column :: Pack -> Int -> V.Vector Block
 column pack x = V.map (!x) pack
+
+bfs :: Parameters -> Pack -> Stage -> [Stage]
+bfs p pack stage = do
+    let t' = (t p)
+        w' = (w p)
+    r <- [0..3]
+    x <- [1-t'..w'-1]
+    case dropPack p x (rotatePack p pack r) stage of
+        Just st -> [st]
+        Nothing -> []
