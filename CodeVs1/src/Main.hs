@@ -72,6 +72,7 @@ outputString (x, r) = (show x) ++ " " ++ (show r)
 mainEmu :: IO ()
 mainEmu =
     do
+        -- あふれたときどういう動作するか見てみる
         let
             p = Parameters {
                     w = 10,
@@ -80,13 +81,22 @@ mainEmu =
                     s = 10,
                     n = 1000
                 }
-            --st = putBlock (0, 15) 1 $ putBlock (1, 14) 2 $ putBlock (2, 13) 3 $ putBlock (3, 12) 4 $ emptyStage (w p) (h p)
-            st = emptyStage (w p) (h p)
-            pk = V.fromList $ map V.fromList [[1,0,0,3],
-                                              [0,0,0,0],
-                                              [3,3,0,0],
+            st = putBlock (4, 2) 1 $ emptyStage (w p) (h p)
+            pk = V.fromList $ map V.fromList [[1,0,0,2],
+                                              [0,0,0,3],
+                                              [4,5,6,0],
                                               [0,0,0,0]]
+        putStrLn $ showStage st
         mapM_ (putStrLn . showStage) $ bfs p [pk] [st]
+{-
+
+    do
+        p <- readParameters
+        packs <- readPacks p
+        let
+            st = emptyStage (w p) (h p)
+        mapM_ (putStrLn . showStage) $ bfs p packs [st]
+-}
 
 mainRotate :: IO ()
 mainRotate = do
