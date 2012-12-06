@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wall #-}
+
 import Control.Applicative ((<$>), (<*>))
 import System.Random
 import Control.Monad.State
