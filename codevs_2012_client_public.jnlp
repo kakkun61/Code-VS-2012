@@ -2,13 +2,13 @@
 <jnlp 
   spec="1.0+" 
   codebase="https://codevs.jp/files/" 
-  href="codevs_2012_client_preopen_public.jnlp">
+  href="codevs_2012_client_public.jnlp">
 
   <information> 
-    <title>CODE VS 2.0 Client Preopen</title> 
+    <title>CODE VS 2.0 Client</title> 
     <vendor>CodeVS</vendor> 
     <homepage href="http://codevs.jp/"/>
-    <description>CODE VS 2.0 Client Preopen</description>
+    <description>CODE VS 2.0 Client</description>
   </information> 
 
   <security>
@@ -17,7 +17,7 @@
 
   <resources> 
     <j2se version="1.4+" max-heap-size="1024m"/> 
-    <jar href="https://codevs.jp/files/codevs_2012_client_preopen_public_cert.jar"/> 
+    <jar href="https://codevs.jp/files/codevs_2012_client_public_cert.jar"/> 
   </resources> 
 
   <application-desc>
