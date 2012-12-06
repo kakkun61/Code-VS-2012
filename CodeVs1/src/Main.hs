@@ -152,6 +152,7 @@ column :: Pack -> Int -> V.Vector Block
 column pack x = V.map (!x) pack
 
 bfs :: Parameters -> [Pack] -> [Stage] -> [Stage]
+bfs _ [] stages = stages
 bfs p packs stages = do
     let t' = (t p)
         w' = (w p)
@@ -160,6 +161,7 @@ bfs p packs stages = do
     r <- [0..3]
     x <- [1-t'..w'-1]
     st <- stages
-    case dropPack p x (rotatePack p pk r) st of
-        Just st -> [st]
-        Nothing -> []
+    let next = case dropPack p x (rotatePack p pk r) st of
+                   Just st -> [st]
+                   Nothing -> []
+    bfs p pks next
