@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -Wall #-}
 
-import Control.Applicative ((<$>), (<*>))
+import Control.Applicative ((<$>))
 import System.Random
 import Control.Monad.State
 import Text.Printf (printf)
 import qualified Data.Vector as V
 import Data.Vector ((!), (//))
-import Debug.Trace
+import Debug.Trace (trace)
 
 data Parameters = Parameters {
                       w :: Int,
@@ -40,19 +40,15 @@ mainRelease =
 readParameters :: IO Parameters
 readParameters =
     do
-        [w, h, t, s, n] <- map read . words <$> getLine
-        return $ Parameters w h t s n
+        [w', h', t', s', n'] <- map read . words <$> getLine
+        return $ Parameters w' h' t' s' n'
 
 readPacks :: Parameters -> IO [Pack]
 readPacks p =
-    replicateM (n p) $ readPack (t p)
-    where
-        readPack :: Int -> IO Pack
-        readPack t =
-            do
-                ls <- V.replicateM t $ V.fromList . (map read . words) <$> getLine
-                getLine
-                return ls
+    replicateM (n p) $ do
+        ls <- V.replicateM (t p) $ V.fromList . (map read . words) <$> getLine
+        _ <- getLine
+        return ls
 
 randomOutputs :: Parameters -> State StdGen [(Int, Int)]
 randomOutputs p =
