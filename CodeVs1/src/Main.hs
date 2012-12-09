@@ -132,7 +132,7 @@ blockAt :: Point -> Pack -> Block
 blockAt (x, y) p = p ! y ! x
 
 rotatePack :: Parameters -> Pack -> Int -> Pack
-rotatePack p pack 0 = pack
+rotatePack _ pack 0 = pack
 rotatePack p pack 1 = V.fromList $ map (V.reverse . column pack) [0..(t p)-1]
 rotatePack p pack 2 = V.fromList $ map (V.reverse . (pack!)) [(t p)-1,(t p)-2..0]
 rotatePack p pack 3 = V.fromList $ map (column pack) [(t p)-1,(t p)-2..0]
