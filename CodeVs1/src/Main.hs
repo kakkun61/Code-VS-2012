@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 import Control.Applicative ((<$>))
-import System.Random
+import System.Random (mkStdGen, StdGen, randomR)
 import Control.Monad.State
 import Text.Printf (printf)
 import qualified Data.Vector as V
@@ -56,9 +56,9 @@ randomOutputs p =
         replicateM (n p) $ randomOutput (w p) (t p)
     where
         randomOutput :: Int -> Int -> State StdGen (Int, Int)
-        randomOutput w t =
+        randomOutput w' t' =
             do
-                x <- state $ randomR (0, w-t)
+                x <- state $ randomR (0, w'-t')
                 r <- state $ randomR (0, 3)
                 return (x, r)
 
@@ -92,7 +92,7 @@ mainRotate = do
     mapM_ (putStrLn . showStage . (rotatePack p) pack) [0..3]
 
 emptyStage :: Int -> Int -> Stage
-emptyStage w h = V.replicate h $ V.replicate w 0
+emptyStage w' h' = V.replicate h' $ V.replicate w' 0
 
 showStage :: Stage -> String
 showStage = unlines . map (unwords . (map (printf "%2d")) . V.toList) . V.toList
@@ -106,10 +106,10 @@ dropPack p x pack stage =
     in
         if overL || overR
             then Nothing
-            else Just $ foldl dropPack' stage [(x, y) | x <- [0..(t'-1)], y <- [(t'-1),(t'-2)..0]]
+            else Just $ foldl dropPack' stage [(bx, by) | bx <- [0..(t'-1)], by <- [(t'-1),(t'-2)..0]]
         where
             dropPack' :: Stage -> Point -> Stage
-            dropPack' stage bp@(bx, by) = dropBlock p (x+bx) (blockAt bp pack) stage
+            dropPack' stage' bp@(bx, _) = dropBlock p (x+bx) (blockAt bp pack) stage'
 
 dropBlock :: Parameters -> Int -> Block -> Stage -> Stage
 dropBlock p x b stage
@@ -119,11 +119,11 @@ dropBlock p x b stage
 
 
 putBlock :: Point -> Block -> Stage -> Stage
-putBlock (x, y) b s = s // [(y, (s ! y) // [(x, b)])]
+putBlock (x, y) b st = st // [(y, (st ! y) // [(x, b)])]
 
 -- | ブロックを落とすと止まる場所（y座標）
 emptyBottom :: Int -> Stage -> Int
-emptyBottom x s = (V.length $ V.takeWhile (== 0) $ V.map (!x) s) - 1
+emptyBottom x st = (V.length $ V.takeWhile (== 0) $ V.map (!x) st) - 1
 
 vconcat :: V.Vector (V.Vector a) -> V.Vector a
 vconcat = V.concat . V.toList
@@ -136,6 +136,7 @@ rotatePack p pack 0 = pack
 rotatePack p pack 1 = V.fromList $ map (V.reverse . column pack) [0..(t p)-1]
 rotatePack p pack 2 = V.fromList $ map (V.reverse . (pack!)) [(t p)-1,(t p)-2..0]
 rotatePack p pack 3 = V.fromList $ map (column pack) [(t p)-1,(t p)-2..0]
+rotatePack _ _ r = error $ (show r) ++ " is not a rotation number (in rotatePack)"
 
 column :: Pack -> Int -> V.Vector Block
 column pack x = V.map (!x) pack
@@ -151,6 +152,6 @@ bfs p packs stages = do
     x <- [1-t'..w'-1]
     st <- stages
     let next = case dropPack p x (rotatePack p pk r) st of
-                   Just st -> [st]
-                   Nothing -> []
+                   Just st' -> [st']
+                   Nothing  -> []
     bfs p pks next
