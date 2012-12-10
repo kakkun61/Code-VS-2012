@@ -6,6 +6,7 @@ import Control.Monad.State
 import Text.Printf (printf)
 import qualified Data.Vector as V
 import Data.Vector ((!), (//))
+import Data.Foldable (foldlM)
 import Debug.Trace (trace)
 
 data Parameters = Parameters {
@@ -100,26 +101,22 @@ showStage = unlines . map (unwords . (map (printf "%2d")) . V.toList) . V.toList
 dropPack :: Parameters -> Int -> Pack -> Stage -> Maybe Stage
 dropPack p x pack stage =
     let
-        overL = not $ V.null $ V.filter (0<) $ vconcat $ V.map (V.take (-x)) pack
-        overR = not $ V.null $ V.filter (0<) $ vconcat $ V.map (V.drop ((t p)-(x+(t p)-(w p)))) pack
         t' = (t p)
     in
-        if overL || overR
-            then Nothing
-            else Just $ foldl dropPack' stage [(bx, by) | bx <- [0..(t'-1)], by <- [(t'-1),(t'-2)..0]]
+        foldlM dropPack' stage [(bx, by) | bx <- [0..(t'-1)], by <- [(t'-1),(t'-2)..0]]
         where
-            dropPack' :: Stage -> Point -> Stage
+            dropPack' :: Stage -> Point -> Maybe Stage
             dropPack' stage' bp@(bx, _) = dropBlock p (x+bx) (blockAt bp pack) stage'
 
-dropBlock :: Parameters -> Int -> Block -> Stage -> Stage
-dropBlock p x b stage
-    | x < 0      = stage
-    | (w p) <= x = stage
-    | otherwise  = putBlock (x, emptyBottom x stage) b stage
+dropBlock :: Parameters -> Int -> Block -> Stage -> Maybe Stage
+dropBlock p x b stage = putBlock p (x, emptyBottom x stage) b stage
 
-
-putBlock :: Point -> Block -> Stage -> Stage
-putBlock (x, y) b st = st // [(y, (st ! y) // [(x, b)])]
+-- あふれの判定もここでするつもりだが、あふれとはみだしとの区別ができない
+putBlock :: Parameters -> Point -> Block -> Stage -> Maybe Stage
+putBlock p (x, y) b st
+    | x < 0      = Nothing
+    | (w p) <= x = Nothing
+    | otherwise  = Just $ st // [(y, (st ! y) // [(x, b)])]
 
 -- | ブロックを落とすと止まる場所（y座標）
 emptyBottom :: Int -> Stage -> Int
