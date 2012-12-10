@@ -23,6 +23,8 @@ type Stage = V.Vector (V.Vector Int)
 type Point = (Int, Int)
 type Block = Int
 
+data OutOfStageError = X | Y
+
 main :: IO ()
 main =
     --mainRelease
@@ -98,25 +100,26 @@ emptyStage w' h' = V.replicate h' $ V.replicate w' 0
 showStage :: Stage -> String
 showStage = unlines . map (unwords . (map (printf "%2d")) . V.toList) . V.toList
 
-dropPack :: Parameters -> Int -> Pack -> Stage -> Maybe Stage
+dropPack :: Parameters -> Int -> Pack -> Stage -> Either OutOfStageError Stage
 dropPack p x pack stage =
     let
         t' = (t p)
     in
         foldlM dropPack' stage [(bx, by) | bx <- [0..(t'-1)], by <- [(t'-1),(t'-2)..0]]
         where
-            dropPack' :: Stage -> Point -> Maybe Stage
+            dropPack' :: Stage -> Point -> Either OutOfStageError Stage
             dropPack' stage' bp@(bx, _) = dropBlock p (x+bx) (blockAt bp pack) stage'
 
-dropBlock :: Parameters -> Int -> Block -> Stage -> Maybe Stage
+dropBlock :: Parameters -> Int -> Block -> Stage -> Either OutOfStageError Stage
 dropBlock p x b stage = putBlock p (x, emptyBottom x stage) b stage
 
--- あふれの判定もここでするつもりだが、あふれとはみだしとの区別ができない
-putBlock :: Parameters -> Point -> Block -> Stage -> Maybe Stage
+putBlock :: Parameters -> Point -> Block -> Stage -> Either OutOfStageError Stage
 putBlock p (x, y) b st
-    | x < 0      = Nothing
-    | (w p) <= x = Nothing
-    | otherwise  = Just $ st // [(y, (st ! y) // [(x, b)])]
+    | x < 0      = Left X
+    | (w p) <= x = Left X
+    | y < 0      = Left Y
+    | (h p) <= y = Left Y
+    | otherwise  = Right $ st // [(y, (st ! y) // [(x, b)])]
 
 -- | ブロックを落とすと止まる場所（y座標）
 emptyBottom :: Int -> Stage -> Int
@@ -149,6 +152,7 @@ bfs p packs stages = do
     x <- [1-t'..w'-1]
     st <- stages
     let next = case dropPack p x (rotatePack p pk r) st of
-                   Just st' -> [st']
-                   Nothing  -> []
+                   Right st' -> [st']
+                   Left X    -> []
+                   Left Y    -> [] -- TODO 終了
     bfs p pks next
